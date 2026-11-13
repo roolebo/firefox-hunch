@@ -1,0 +1,11 @@
+name: lint
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The checks addons.mozilla.org runs before it signs
+      - run: npx --yes web-ext@8.10.0 lint --source-dir extension
