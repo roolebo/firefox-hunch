@@ -9,10 +9,15 @@ server, which may run on another host, e.g. the agent's remote machine.
 Run `hunch-browser-server` from hunch in a pane of the agent's tmux
 window.
 
-In Firefox, open `about:debugging`, This Firefox, Load Temporary Add-on,
-and pick `extension/manifest.json`. A temporary add-on stays until Firefox
-restarts. In the add-on's preferences, set the server, e.g.
+Download the signed extension, the `.xpi` of the [latest release]. In
+Firefox, open `about:addons`, the gear menu, Install Add-on From File, and
+pick it. In the add-on's preferences, set the server, e.g.
 `http://HOST:PORT`, and the token.
 
+To try changes, load `extension/manifest.json` from `about:debugging`,
+This Firefox, Load Temporary Add-on instead. A temporary add-on stays
+until Firefox restarts.
+
 [hunch]: https://github.com/roolebo/hunch
+[latest release]: https://github.com/roolebo/firefox-hunch/releases/latest
 [browser protocol]: https://github.com/roolebo/hunch/blob/main/skills/hunch/BROWSER.md
