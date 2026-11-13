@@ -16,7 +16,10 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "firefox-hunch@hunch"
+      "id": "firefox-hunch@hunch",
+      "data_collection_permissions": {
+        "required": ["websiteContent", "browsingActivity"]
+      }
     }
   }
 }
