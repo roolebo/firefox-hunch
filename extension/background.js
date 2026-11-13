@@ -74,7 +74,6 @@ function pageDom(selector) {
 const COMMANDS = {
   async context() {
     const tab = await activeTab();
-    const tabs = await browser.tabs.query({});
     let selection = null;
     try {
       selection = await inPage(pageSelection, MAX_SELECTION_HTML);
@@ -83,18 +82,7 @@ const COMMANDS = {
       // still context
       console.debug("hunch: no selection:", e);
     }
-    return {
-      tab: tab.id,
-      url: tab.url,
-      title: tab.title,
-      selection,
-      tabs: tabs.map((t) => ({
-        tab: t.id,
-        url: t.url,
-        title: t.title,
-        active: t.active,
-      })),
-    };
+    return { tab: tab.id, title: tab.title, selection };
   },
   selection: () => inPage(() => getSelection().toString()),
   read: () => inPage(() => document.body.innerText),

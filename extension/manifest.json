@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
   "name": "hunch",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Lets an agent read the page the human works on through hunch.",
   "icons": {
     "48": "icon.svg",
     "96": "icon.svg"
   },
-  "permissions": ["tabs", "storage", "<all_urls>"],
+  "permissions": ["storage", "<all_urls>"],
   "background": {
     "scripts": ["background.js"]
   },
@@ -18,7 +18,7 @@
     "gecko": {
       "id": "firefox-hunch@hunch",
       "data_collection_permissions": {
-        "required": ["websiteContent", "browsingActivity"]
+        "required": ["websiteContent"]
       }
     }
   }
