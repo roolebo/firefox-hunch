@@ -1,18 +1,20 @@
 # firefox-hunch
 
 A Firefox extension for [hunch]: an agent reads the page the human works
-on. It implements the [browser protocol] and talks to hunch's browser
-server, which may run on another host, e.g. the agent's remote machine.
+on. It implements the [browser protocol] and talks to hunch-host on the
+same machine by native messaging; hunch-host serves the browser to the
+agents there or on another host.
 
 ## Setup
 
-Run `hunch-browser-server` from hunch in a pane of the agent's tmux
-window.
+Let the extension reach hunch-host, once: in the Hunch app, Browser,
+Install for Firefox; or run
+
+    hunch-host browser install firefox
 
 Download the signed extension, the `.xpi` of the [latest release]. In
 Firefox, open `about:addons`, the gear menu, Install Add-on From File, and
-pick it. In the add-on's preferences, set the server, e.g.
-`http://HOST:PORT`, and the token.
+pick it.
 
 To try changes, load `extension/manifest.json` from `about:debugging`,
 This Firefox, Load Temporary Add-on instead. A temporary add-on stays

@@ -1,11 +1,8 @@
-// Polls hunch-browser-server for the agent's commands, runs them and posts
-// the replies: an extension can connect to a server but can't listen.
+// Runs the agent's commands that hunch-host passes on, and replies.
 
 const RETRY_DELAY = 3000;
 // Larger HTML in context would crowd out the rest; dom fetches it
 const MAX_SELECTION_HTML = 10000;
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function activeTab() {
   const [tab] = await browser.tabs.query({
@@ -99,65 +96,33 @@ async function run({ id, command, args }) {
   }
 }
 
-// The server tells browsers apart by this id, kept across restarts
-async function browserId() {
-  const { browserId } = await browser.storage.local.get("browserId");
-  if (browserId) return browserId;
-  const id = crypto.randomUUID();
-  await browser.storage.local.set({ browserId: id });
-  return id;
-}
+// hunch-host, which the browser starts as the native messaging host
+// hunch, sends the agent's commands and takes the replies; null while
+// it's gone
+let hunch = null;
 
-async function connection() {
-  const { server, token } = await browser.storage.local.get([
-    "server",
-    "token",
-  ]);
-  if (!server || !token) return null;
-  const id = encodeURIComponent(await browserId());
-  return { server, id, headers: { Authorization: `Bearer ${token}` } };
-}
-
-async function poll() {
-  for (;;) {
-    const c = await connection();
-    if (!c) {
-      await sleep(RETRY_DELAY);
-      continue;
-    }
-    try {
-      const response = await fetch(`${c.server}/poll?browser=${c.id}`, {
-        headers: c.headers,
-      });
-      if (response.status === 204) continue;
-      if (!response.ok)
-        throw new Error(`${response.status} ${await response.text()}`);
-      const reply = await run(await response.json());
-      await fetch(`${c.server}/reply`, {
-        method: "POST",
-        headers: { ...c.headers, "Content-Type": "application/json" },
-        body: JSON.stringify(reply),
-      });
-    } catch (e) {
-      console.warn(`hunch: ${c.server}:`, e);
-      await sleep(RETRY_DELAY);
-    }
-  }
+async function connect() {
+  const port = browser.runtime.connectNative("hunch");
+  let gone = false;
+  port.onDisconnect.addListener(() => {
+    gone = true;
+    hunch = null;
+    console.warn("hunch: hunch-host went away:", port.error);
+    setTimeout(connect, RETRY_DELAY);
+  });
+  port.onMessage.addListener(async (command) =>
+    port.postMessage(await run(command)),
+  );
+  const { name } = await browser.runtime.getBrowserInfo();
+  if (gone) return;
+  port.postMessage({ hello: { name } });
+  hunch = port;
 }
 
 // Commands go to the browser the human used last
-browser.windows.onFocusChanged.addListener(async (windowId) => {
-  if (windowId === browser.windows.WINDOW_ID_NONE) return;
-  const c = await connection();
-  if (!c) return;
-  try {
-    await fetch(`${c.server}/focus?browser=${c.id}`, {
-      method: "POST",
-      headers: c.headers,
-    });
-  } catch (e) {
-    console.warn(`hunch: ${c.server}:`, e);
-  }
+browser.windows.onFocusChanged.addListener((windowId) => {
+  if (windowId !== browser.windows.WINDOW_ID_NONE && hunch)
+    hunch.postMessage({ focus: true });
 });
 
-poll();
+connect();

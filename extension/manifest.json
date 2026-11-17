@@ -1,18 +1,15 @@
 {
   "manifest_version": 2,
   "name": "hunch",
-  "version": "0.2",
+  "version": "0.3",
   "description": "Lets an agent read the page the human works on through hunch.",
   "icons": {
     "48": "icon.svg",
     "96": "icon.svg"
   },
-  "permissions": ["storage", "<all_urls>"],
+  "permissions": ["nativeMessaging", "<all_urls>"],
   "background": {
     "scripts": ["background.js"]
-  },
-  "options_ui": {
-    "page": "options.html"
   },
   "browser_specific_settings": {
     "gecko": {
